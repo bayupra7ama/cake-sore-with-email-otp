@@ -19,44 +19,26 @@ class RegisteredUserController extends Controller
     {
         return view('auth.register');
     }
-
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|confirmed|min:8',
         ]);
 
-        // Buat user (BELUM AKTIF)
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => bcrypt($request->password),
             'role' => 'user',
             'is_active' => false,
         ]);
 
-        // Login sementara (untuk OTP)
         Auth::login($user);
 
-        // Hapus OTP lama (jika ada)
-        Otp::where('user_id', $user->id)->delete();
-
-        // Generate OTP
-        $code = rand(100000, 999999);
-
-        Otp::create([
-            'user_id' => $user->id,
-            'code' => $code,
-            'expired_at' => now()->addMinutes(5),
-        ]);
-
-        // Kirim OTP ke email
-        Mail::to($user->email)->send(new OtpMail($code));
-
-        // Redirect ke halaman OTP
-        return redirect()->route('otp.form')
-            ->with('success', 'Kode OTP telah dikirim ke email Anda');
+        // ❌ JANGAN KIRIM OTP DI SINI
+        return redirect()->route('otp.form');
     }
+
 }

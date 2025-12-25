@@ -16,6 +16,35 @@ class OtpController extends Controller
         return view('auth.otp');
     }
 
+    // 🔥 KIRIM OTP SAAT BUTTON DIKLIK
+    public function send()
+    {
+        // batasi kirim OTP tiap 1 menit
+        $lastOtp = Otp::where('user_id', auth()->id())
+            ->where('created_at', '>', now()->subMinute())
+            ->first();
+
+        if ($lastOtp) {
+            return back()->withErrors([
+                'otp' => 'Tunggu 1 menit sebelum kirim OTP lagi'
+            ]);
+        }
+
+        Otp::where('user_id', auth()->id())->delete();
+
+        $code = rand(100000, 999999);
+
+        Otp::create([
+            'user_id' => auth()->id(),
+            'code' => $code,
+            'expired_at' => now()->addMinutes(5),
+        ]);
+
+        Mail::to(auth()->user()->email)->send(new OtpMail($code));
+
+        return back()->with('success', 'Kode OTP dikirim');
+    }
+
     public function verify(Request $request)
     {
         $request->validate([
@@ -30,27 +59,23 @@ class OtpController extends Controller
 
         if (!$otp) {
             return back()->withErrors([
-                'otp' => 'OTP tidak valid atau sudah kadaluarsa'
+                'otp' => 'OTP tidak valid atau kadaluarsa'
             ]);
         }
 
-        // Tandai OTP terpakai
         $otp->update(['is_used' => true]);
 
-        // Aktifkan akun
-        auth()->user()->update([
-            'is_active' => true
-        ]);
-
-        // Tandai OTP sudah diverifikasi
+        // 🔐 OTP SESSION
         session(['otp_verified' => true]);
 
-        // Redirect sesuai role
-        if (auth()->user()->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+        // 🔐 AKTIFKAN AKUN JIKA BELUM (REGISTRASI)
+        if (!auth()->user()->is_active) {
+            auth()->user()->update(['is_active' => true]);
         }
 
-        return redirect()->route('user.dashboard');
+        return auth()->user()->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('user.dashboard');
     }
-
 }
+

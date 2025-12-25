@@ -1,17 +1,24 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+@section('title', 'Dashboard')
+
+@section('content')
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="bg-white p-6 rounded shadow">
+            <p class="text-sm text-gray-500">Total Produk</p>
+            <p class="text-2xl font-bold">0</p>
         </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <p class="text-sm text-gray-500">Pesanan Masuk</p>
+            <p class="text-2xl font-bold">0</p>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow">
+            <p class="text-sm text-gray-500">Menunggu Validasi</p>
+            <p class="text-2xl font-bold">0</p>
+        </div>
+
     </div>
-</x-app-layout>
+@endsection

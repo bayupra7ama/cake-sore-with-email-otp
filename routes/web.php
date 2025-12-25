@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\Auth\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,9 +13,23 @@ use App\Http\Controllers\Auth\OtpController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
+
+    if (auth()->check()) {
+        return auth()->user()->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('user.dashboard');
+    }
+
     return view('welcome');
+
 });
 
+
+Route::get('/auth/google', [GoogleController::class, 'redirect'])
+    ->name('google.login');
+
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
+    ->name('google.callback');
 /*
 |--------------------------------------------------------------------------
 | OTP (SETELAH LOGIN)
@@ -23,9 +40,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/otp', [OtpController::class, 'show'])
         ->name('otp.form');
 
+    Route::post('/otp/send', [OtpController::class, 'send'])
+        ->name('otp.send');
+
     Route::post('/otp', [OtpController::class, 'verify'])
         ->name('otp.verify');
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +57,7 @@ Route::middleware(['auth', 'otp'])->prefix('user')->name('user.')->group(functio
 
     Route::get('/dashboard', function () {
         return view('user.dashboard');
-    })->name("user.dashboard");
+    })->name("dashboard");
 
 });
 
@@ -50,6 +71,15 @@ Route::middleware(['auth', 'otp'])->prefix('admin')->name('admin.')->group(funct
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
+
+    Route::resource('categories', CategoryController::class);
+
+    Route::resource('products', ProductController::class);
+
+    Route::delete(
+        'admin/products/{product}/image/{image}',
+        [ProductController::class, 'deleteImage']
+    )->name('products.image.delete');
 
 });
 

@@ -13,6 +13,7 @@ class AdminUserSeeder extends Seeder
             'email' => 'admin@ranisya.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
+            'is_active' => 1,
         ]);
     }
 }

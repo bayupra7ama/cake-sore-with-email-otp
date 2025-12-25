@@ -15,7 +15,7 @@ class EnsureOtpVerified
      */
     public function handle($request, Closure $next)
     {
-        if (!session('otp_verified')) {
+        if (!auth()->user()->is_active) {
             return redirect()->route('otp.form');
         }
 

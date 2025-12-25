@@ -30,32 +30,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // ❌ BLOK JIKA AKUN BELUM AKTIF
         if (!auth()->user()->is_active) {
-            Auth::logout();
-            return back()->withErrors([
-                'email' => 'Akun belum diverifikasi OTP'
-            ]);
+            return redirect()->route('otp.form');
         }
 
-        // Hapus OTP lama
-        Otp::where('user_id', auth()->id())->delete();
-
-        // Generate OTP baru
-        $code = rand(100000, 999999);
-
-        Otp::create([
-            'user_id' => auth()->id(),
-            'code' => $code,
-            'expired_at' => now()->addMinutes(5),
-        ]);
-
-        // Kirim OTP
-        Mail::to(auth()->user()->email)->send(new OtpMail($code));
-
-        // Redirect ke form OTP
-        return redirect()->route('otp.form');
+        // langsung ke dashboard
+        return auth()->user()->role === 'admin'
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('user.dashboard');
     }
+
+
     /**
      * Destroy an authenticated session.
      */
