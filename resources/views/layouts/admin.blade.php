@@ -8,8 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-100">
-
+<body class="bg-gray-100" x-data="{ sidebarOpen: false }">
     <div class="flex min-h-screen">
 
         {{-- SIDEBAR --}}
@@ -18,11 +17,17 @@
         {{-- MAIN CONTENT --}}
         <div class="flex-1 flex flex-col">
 
-            {{-- TOP BAR --}}
             <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
-                <h1 class="text-lg font-semibold">
-                    @yield('title', 'Dashboard')
-                </h1>
+                <div class="flex items-center gap-3">
+                    {{-- HAMBURGER --}}
+                    <button class="md:hidden text-gray-700 text-2xl" @click="sidebarOpen = true">
+                        ☰
+                    </button>
+
+                    <h1 class="text-lg font-semibold">
+                        @yield('title', 'Dashboard')
+                    </h1>
+                </div>
 
                 <div class="flex items-center gap-4">
                     <span class="text-sm text-gray-600">
@@ -37,6 +42,7 @@
                     </form>
                 </div>
             </header>
+
 
             {{-- PAGE CONTENT --}}
             <main class="p-6 flex-1 w-full">

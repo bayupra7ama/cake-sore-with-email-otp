@@ -75,7 +75,8 @@ class OtpController extends Controller
 
         return auth()->user()->role === 'admin'
             ? redirect()->route('admin.dashboard')
-            : redirect()->route('user.dashboard');
+            : redirect()->route('home');
+
     }
 }
 

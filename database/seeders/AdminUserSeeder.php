@@ -9,7 +9,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin Ranisya',
+            'name' => 'Admin Raninsha Kitchen',
             'email' => 'admin@ranisya.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
